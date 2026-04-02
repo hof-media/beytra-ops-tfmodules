@@ -33,10 +33,7 @@ resource "google_secret_manager_secret" "secret" {
     auto {}
   }
 
-  labels = merge(var.labels, {
-    managed_by      = "terraform"
-    required_fields = join("_", var.required_fields)
-  })
+  labels = var.labels
 
   # Annotations document the expected secret shape for operators
   annotations = {
