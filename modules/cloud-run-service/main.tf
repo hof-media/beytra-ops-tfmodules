@@ -142,32 +142,14 @@ resource "google_cloud_run_v2_service_iam_member" "domain_invoker" {
   member = "domain:${var.allowed_domain}"
 }
 
-# Allow bastion service account to invoke the Cloud Run service
-resource "google_cloud_run_v2_service_iam_member" "bastion_invoker" {
+# Additional invokers (bastion, gateway, hooks, etc.)
+resource "google_cloud_run_v2_service_iam_member" "additional_invokers" {
+  for_each = toset(var.additional_invokers)
+
   name     = google_cloud_run_v2_service.etl_processor.name
   location = google_cloud_run_v2_service.etl_processor.location
   project  = google_cloud_run_v2_service.etl_processor.project
 
   role   = "roles/run.invoker"
-  member = "serviceAccount:beytra-bastion-sa@${var.project_id}.iam.gserviceaccount.com"
-}
-
-# Allow beytra-app-hooks service account to invoke the Cloud Run service (for OpenAPI spec fetching)
-resource "google_cloud_run_v2_service_iam_member" "hooks_invoker" {
-  name     = google_cloud_run_v2_service.etl_processor.name
-  location = google_cloud_run_v2_service.etl_processor.location
-  project  = google_cloud_run_v2_service.etl_processor.project
-
-  role   = "roles/run.invoker"
-  member = "serviceAccount:beytra-app-hooks-github-deploy@${var.project_id}.iam.gserviceaccount.com"
-}
-
-# Allow beytra-gateway service account to invoke the Cloud Run service (for proxying requests)
-resource "google_cloud_run_v2_service_iam_member" "gateway_invoker" {
-  name     = google_cloud_run_v2_service.etl_processor.name
-  location = google_cloud_run_v2_service.etl_processor.location
-  project  = google_cloud_run_v2_service.etl_processor.project
-
-  role   = "roles/run.invoker"
-  member = "serviceAccount:beytra-gateway@${var.project_id}.iam.gserviceaccount.com"
+  member = each.value
 }

@@ -154,6 +154,12 @@ variable "startup_probe_timeout" {
   default     = null # Use Cloud Run defaults when null
 }
 
+variable "additional_invokers" {
+  description = "Additional IAM members allowed to invoke this service (e.g., ['serviceAccount:beytra-gateway@project.iam.gserviceaccount.com'])"
+  type        = list(string)
+  default     = []
+}
+
 #------------------------------------------------------------------------------
 # Cost Optimization Variables
 #------------------------------------------------------------------------------
