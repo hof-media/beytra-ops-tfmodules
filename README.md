@@ -34,18 +34,25 @@ module "my_service" {
 | `bastion-ssh-keys` | SSH key management for bastion |
 | `bastion-access-iam` | IAM bindings for bastion tunnel access |
 
-## Roles
+## Custom IAM Roles
 
-`roles/permissions.tf` defines canonical permission sets for common service account patterns. Import as a module:
+The `service-account` module creates a `google_project_iam_custom_role` with exactly the permissions you specify. No broad predefined roles.
 
 ```hcl
-module "roles" {
-  source = "github.com/hof-media/beytra-ops-tfmodules//roles?ref=v1.0.0"
-}
-
-module "my_sa" {
+module "runtime_sa" {
   source = "github.com/hof-media/beytra-ops-tfmodules//modules/service-account?ref=v1.0.0"
-  custom_role_permissions = module.roles.cloud_run_runtime_permissions
+
+  project_id   = "beytra-dev"
+  account_id   = "beytra-api-courses"
+  display_name = "Beytra API Courses Runtime"
+
+  custom_role_permissions = [
+    "secretmanager.versions.access",
+    "cloudsql.instances.connect",
+    "storage.objects.get",
+    "storage.objects.create",
+    "run.routes.invoke",
+  ]
 }
 ```
 
