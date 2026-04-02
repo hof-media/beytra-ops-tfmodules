@@ -1,0 +1,54 @@
+main:
+  params: [event]
+  steps:
+    - init:
+        assign:
+          - topic_id: "${pubsub_topic_id}"
+          - bucket: $${event.data.bucket}
+          - file: $${event.data.name}
+
+    - check_inbound_path:
+        # Only process files in inbound/ directory
+        switch:
+          - condition: $${not(text.match_regex(file, "^inbound/"))}
+            return: "Skipped: not in inbound/ directory"
+
+    - extract_course_id:
+        # Extract course ID from bucket name: beytra-docs-{course-id}
+        assign:
+          - course_id: $${text.replace_all(bucket, "beytra-docs-", "")}
+          - file_path: $${"gs://" + bucket + "/" + file}
+
+    - log_start:
+        call: sys.log
+        args:
+          text: $${"Processing " + file_path + " for course " + course_id}
+          severity: INFO
+
+    - extract_document_id:
+        # Extract document ID from filename (without extension)
+        assign:
+          - file_parts: $${text.split(file, "/")}
+          - filename: $${file_parts[len(file_parts)-1]}
+          - doc_id: $${text.replace_all(filename, ".pdf", "")}
+
+    - create_message:
+        assign:
+          - message:
+              file_name: $${file_path}
+              file_course: $${course_id}
+
+    - publish_to_pubsub:
+        call: googleapis.pubsub.v1.projects.topics.publish
+        args:
+          topic: $${topic_id}
+          body:
+            messages:
+              - data: $${base64.encode(json.encode(message))}
+        result: publish_result
+
+    - log_complete:
+        call: sys.log
+        args:
+          text: $${"Published message to Pub/Sub for " + file_path}
+          severity: INFO
