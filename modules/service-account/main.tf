@@ -24,6 +24,49 @@ terraform {
   }
 }
 
+locals {
+  # Standard permission presets
+  presets = {
+    terraform = [
+      # Cloud Run
+      "run.services.create", "run.services.update", "run.services.delete",
+      "run.services.get", "run.services.list",
+      "run.services.getIamPolicy", "run.services.setIamPolicy",
+      "run.revisions.get", "run.revisions.list",
+      "run.jobs.get", "run.jobs.create", "run.jobs.update",
+      # Secret Manager (shell only)
+      "secretmanager.secrets.create", "secretmanager.secrets.get",
+      "secretmanager.secrets.update", "secretmanager.secrets.list",
+      "secretmanager.secrets.getIamPolicy", "secretmanager.secrets.setIamPolicy",
+      # IAM
+      "iam.roles.create", "iam.roles.update", "iam.roles.get", "iam.roles.list",
+      "iam.serviceAccounts.create", "iam.serviceAccounts.get",
+      "iam.serviceAccounts.getIamPolicy", "iam.serviceAccounts.setIamPolicy",
+      "resourcemanager.projects.getIamPolicy", "resourcemanager.projects.setIamPolicy",
+      # GCS (state bucket + bucket IAM)
+      "storage.objects.get", "storage.objects.create", "storage.objects.delete", "storage.objects.list",
+      "storage.buckets.get", "storage.buckets.getIamPolicy", "storage.buckets.setIamPolicy",
+      # Pub/Sub (for projects that use it)
+      "pubsub.topics.get", "pubsub.topics.create", "pubsub.topics.update",
+      "pubsub.subscriptions.get", "pubsub.subscriptions.create", "pubsub.subscriptions.update",
+    ]
+    deployer = [
+      "run.services.get", "run.services.update",
+      "run.revisions.get", "run.revisions.list", "run.operations.get",
+      "run.jobs.get", "run.jobs.run", "run.executions.get", "run.executions.list",
+      "artifactregistry.repositories.uploadArtifacts", "artifactregistry.repositories.downloadArtifacts",
+      "artifactregistry.tags.create", "artifactregistry.tags.update",
+      "iam.serviceAccounts.actAs",
+    ]
+  }
+
+  # Merge preset with any additional custom permissions
+  resolved_permissions = distinct(concat(
+    var.preset != null ? local.presets[var.preset] : [],
+    var.custom_role_permissions
+  ))
+}
+
 # Service Account
 resource "google_service_account" "sa" {
   project      = var.project_id
@@ -34,18 +77,18 @@ resource "google_service_account" "sa" {
 
 # Custom IAM Role (least-privilege)
 resource "google_project_iam_custom_role" "role" {
-  count = length(var.custom_role_permissions) > 0 ? 1 : 0
+  count = length(local.resolved_permissions) > 0 ? 1 : 0
 
   project     = var.project_id
   role_id     = replace(var.account_id, "-", "_")
   title       = "${var.display_name} Role"
   description = "Custom least-privilege role for ${var.display_name}"
-  permissions = var.custom_role_permissions
+  permissions = local.resolved_permissions
 }
 
 # Bind custom role to service account
 resource "google_project_iam_member" "custom_role_binding" {
-  count = length(var.custom_role_permissions) > 0 ? 1 : 0
+  count = length(local.resolved_permissions) > 0 ? 1 : 0
 
   project = var.project_id
   role    = google_project_iam_custom_role.role[0].id

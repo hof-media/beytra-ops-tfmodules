@@ -19,8 +19,19 @@ variable "description" {
   default     = ""
 }
 
+variable "preset" {
+  description = "Permission preset: 'terraform' (plan/apply infra), 'deployer' (CI/CD app deploy), or null (use custom_role_permissions)"
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.preset == null || contains(["terraform", "deployer"], var.preset)
+    error_message = "preset must be 'terraform', 'deployer', or null"
+  }
+}
+
 variable "custom_role_permissions" {
-  description = "List of GCP permissions for a custom least-privilege role (e.g., ['secretmanager.versions.access', 'cloudsql.instances.connect'])"
+  description = "List of GCP permissions for a custom least-privilege role. Merged with preset permissions if preset is set."
   type        = list(string)
   default     = []
 }
