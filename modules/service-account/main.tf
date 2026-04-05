@@ -77,6 +77,9 @@ locals {
       "compute.regionNetworkEndpointGroups.get", "compute.regionNetworkEndpointGroups.list",
       # VPC Access Connector
       "vpcaccess.connectors.get", "vpcaccess.connectors.list",
+      # Service Networking (VPC peering for Google services)
+      "servicenetworking.services.get",
+      "resourcemanager.projects.get",
       # Cloud SQL
       "cloudsql.instances.get", "cloudsql.instances.list",
       "cloudsql.users.get", "cloudsql.users.list",
