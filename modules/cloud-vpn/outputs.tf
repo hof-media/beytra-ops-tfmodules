@@ -15,6 +15,7 @@ output "tunnel_name" {
 
 output "setup_instructions" {
   description = "Instructions for completing VPN setup on macOS"
+  sensitive   = true
   value       = <<-EOT
 
   ✅ VPN Gateway Created Successfully!
