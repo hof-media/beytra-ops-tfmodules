@@ -18,25 +18,12 @@ output "ssh_tunnel_command" {
   value       = "gcloud compute ssh ${google_compute_instance.bastion.name} --zone=${var.zone} --project=${var.project_id} --tunnel-through-iap -- -L 5434:localhost:5432 -N"
 }
 
-output "dbeaver_connection_instructions" {
-  description = "Instructions for connecting DBeaver"
-  value       = <<-EOT
+output "service_account_email" {
+  description = "Email of the bastion service account (grant run.invoker on Cloud Run services to it)"
+  value       = google_service_account.bastion.email
+}
 
-  ✅ Bastion Host Deployed Successfully!
-
-  Step 1: Create SSH tunnel (run in terminal):
-    gcloud compute ssh ${google_compute_instance.bastion.name} --zone=${var.zone} --project=${var.project_id} --tunnel-through-iap -- -L 5434:localhost:5432 -N
-
-  Step 2: Connect DBeaver:
-    Host: localhost
-    Port: 5434
-    Database: postgres
-    Username: beytra_user
-    Password: (get from Secret Manager)
-
-  To get password:
-    gcloud secrets versions access latest --secret=beytra-db-dev --project=${var.project_id} | jq -r .DB_PASSWORD
-
-  Keep the SSH tunnel running while using DBeaver.
-  EOT
+output "cloudrun_proxy_ports" {
+  description = "Map of service name => bastion-side port (useful for dev docker-compose env config)"
+  value       = { for k, v in var.cloudrun_services : k => v.port }
 }

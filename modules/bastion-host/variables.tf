@@ -9,7 +9,7 @@ variable "bastion_name" {
 }
 
 variable "zone" {
-  description = "GCP zone for bastion host"
+  description = "GCP zone for bastion host. Downstream dev tunnels hardcode this via docker-compose — changing it breaks every developer's tunnels."
   type        = string
 }
 
@@ -25,116 +25,30 @@ variable "machine_type" {
 }
 
 variable "cloudsql_instance_connection_name" {
-  description = "CloudSQL instance connection name"
+  description = "CloudSQL instance connection name (project:region:instance)"
   type        = string
 }
 
-variable "allowed_ssh_cidrs" {
-  description = "CIDR ranges allowed to SSH to bastion"
-  type        = list(string)
-  default     = ["0.0.0.0/0"]
+variable "cloudrun_services" {
+  description = "Cloud Run services proxied through the bastion. Map key = short service name (used for systemd unit + bastion-side port); value = { port, url }. Bastion SA automatically granted roles/run.invoker on each service_name listed in invoker_service_names."
+  type = map(object({
+    port = number
+    url  = string
+  }))
+  default = {}
+}
+
+variable "invoker_service_names" {
+  description = "List of Cloud Run service NAMES (not URLs) that the bastion SA needs roles/run.invoker on. Typically the same set of values as the keys of cloudrun_services but prefixed with 'beytra-api-'. Passed explicitly because the module can't parse service names from URLs reliably."
+  type = list(object({
+    service_name = string
+    region       = string
+  }))
+  default = []
 }
 
 variable "labels" {
   description = "Labels to apply to resources"
   type        = map(string)
   default     = {}
-}
-
-variable "ssh_public_key" {
-  description = "SSH public key for bastion access (from bastion-ssh-keys module)"
-  type        = string
-}
-
-variable "courses_api_url" {
-  description = "URL for beytra-api-courses Cloud Run service"
-  type        = string
-}
-
-variable "topics_api_url" {
-  description = "URL for beytra-api-topics Cloud Run service"
-  type        = string
-}
-
-variable "assignments_api_url" {
-  description = "URL for beytra-api-assignments Cloud Run service"
-  type        = string
-}
-
-variable "concepts_api_url" {
-  description = "URL for beytra-api-concepts Cloud Run service"
-  type        = string
-}
-
-variable "questions_api_url" {
-  description = "URL for beytra-api-questions Cloud Run service"
-  type        = string
-}
-
-variable "students_api_url" {
-  description = "URL for beytra-api-students Cloud Run service"
-  type        = string
-}
-
-variable "maps_api_url" {
-  description = "URL for beytra-api-maps Cloud Run service"
-  type        = string
-  default     = ""
-}
-
-# beytra-api-docs services (ports 8101-8103)
-variable "documents_api_url" {
-  description = "URL for beytra-api-documents Cloud Run service"
-  type        = string
-  default     = ""
-}
-
-variable "pages_api_url" {
-  description = "URL for beytra-api-pages Cloud Run service"
-  type        = string
-  default     = ""
-}
-
-variable "media_api_url" {
-  description = "URL for beytra-api-media Cloud Run service"
-  type        = string
-  default     = ""
-}
-
-# beytra-api-identity services (ports 8104-8106)
-variable "users_api_url" {
-  description = "URL for beytra-api-users Cloud Run service"
-  type        = string
-  default     = ""
-}
-
-variable "roles_api_url" {
-  description = "URL for beytra-api-roles Cloud Run service"
-  type        = string
-  default     = ""
-}
-
-variable "permissions_api_url" {
-  description = "URL for beytra-api-permissions Cloud Run service"
-  type        = string
-  default     = ""
-}
-
-# beytra-api-identity integrations services (ports 8107-8108)
-variable "universities_api_url" {
-  description = "URL for beytra-api-universities Cloud Run service"
-  type        = string
-  default     = ""
-}
-
-variable "integrations_api_url" {
-  description = "URL for beytra-api-integrations Cloud Run service"
-  type        = string
-  default     = ""
-}
-
-variable "iap_tunnel_members" {
-  description = "List of service accounts that need IAP tunnel access to bastion (e.g., serviceAccount:email@project.iam.gserviceaccount.com)"
-  type        = list(string)
-  default     = []
 }
