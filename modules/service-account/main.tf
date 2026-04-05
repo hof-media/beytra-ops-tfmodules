@@ -53,8 +53,10 @@ locals {
       # Pub/Sub (for projects that use it)
       "pubsub.topics.get", "pubsub.topics.create", "pubsub.topics.update",
       "pubsub.subscriptions.get", "pubsub.subscriptions.create", "pubsub.subscriptions.update",
-      # Artifact Registry (for repos that manage it)
+      # Artifact Registry (repos + IAM bindings)
       "artifactregistry.repositories.get", "artifactregistry.repositories.list",
+      "artifactregistry.repositories.create", "artifactregistry.repositories.update", "artifactregistry.repositories.delete",
+      "artifactregistry.repositories.getIamPolicy", "artifactregistry.repositories.setIamPolicy",
       # DNS (for platform)
       "dns.managedZones.get", "dns.managedZones.list",
       "dns.resourceRecordSets.get", "dns.resourceRecordSets.list",
