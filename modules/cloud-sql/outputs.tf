@@ -20,15 +20,14 @@ output "private_ip" {
   value       = try(google_sql_database_instance.main.private_ip_address, null)
 }
 
-output "user" {
-  description = "Database user name"
-  value       = google_sql_user.beytra_user.name
+output "users" {
+  description = "Map of DB user name => user name (identity map for convenience)"
+  value       = { for k, u in google_sql_user.users : k => u.name }
 }
 
-output "password" {
-  description = "Database password (sensitive)"
-  value       = random_password.db_password.result
-  sensitive   = true
+output "password_secret_ids" {
+  description = "Map of DB user name => Secret Manager secret ID holding that user's password"
+  value       = { for k, s in google_secret_manager_secret.db_password : k => s.secret_id }
 }
 
 output "instance_self_link" {

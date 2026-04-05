@@ -1,6 +1,6 @@
 # CloudSQL PostgreSQL Instance Module
-# Manages CloudSQL instance, users, and networking
-# NOTE: Databases are NOT created here - they are created via Flyway migrations
+# Manages CloudSQL instance, users, and per-user Secret Manager password secrets.
+# NOTE: Databases are NOT created here - they are created via Flyway migrations.
 
 terraform {
   required_providers {
@@ -15,8 +15,10 @@ terraform {
   }
 }
 
-# Generate secure password for beytra_user
+# Generate one random password per user
 resource "random_password" "db_password" {
+  for_each = var.users
+
   length  = 32
   special = true
 }
@@ -76,21 +78,48 @@ resource "google_sql_database_instance" "main" {
   deletion_protection = var.deletion_protection
 }
 
-# Create beytra_user (main database user)
-resource "google_sql_user" "beytra_user" {
-  name     = "beytra_user"
+# Create one SQL user per entry in var.users
+resource "google_sql_user" "users" {
+  for_each = var.users
+
+  name     = each.key
   instance = google_sql_database_instance.main.name
-  password = random_password.db_password.result
+  password = random_password.db_password[each.key].result
   project  = var.project_id
 }
 
+# Canonical per-user password secret (Terraform owns both CloudSQL user password AND secret value)
+resource "google_secret_manager_secret" "db_password" {
+  for_each = var.users
+
+  project   = var.project_id
+  secret_id = "beytra-db-password-${var.environment}-${each.key}"
+  labels    = merge(var.labels, { system = "cloudsql", db_user = each.key })
+
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "db_password" {
+  for_each = var.users
+
+  secret      = google_secret_manager_secret.db_password[each.key].id
+  secret_data = random_password.db_password[each.key].result
+}
+
+# Optional: grant shared accessor SAs to all per-user secrets
+resource "google_secret_manager_secret_iam_member" "accessor" {
+  for_each = {
+    for pair in setproduct(keys(var.users), var.secret_accessor_service_accounts) :
+    "${pair[0]}::${pair[1]}" => { user = pair[0], sa = pair[1] }
+  }
+
+  project   = var.project_id
+  secret_id = google_secret_manager_secret.db_password[each.value.user].secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${each.value.sa}"
+}
+
 # NOTE: Databases are NOT created here!
-# They are created via Flyway migrations in beytra-db repository:
-# - Migrations/beytra/V1__init_databases.sql creates:
-#   - beytra-docs
-#   - beytra-courses
-#   - beytra-sms
-#   - beytra-identity
-#
-# This keeps all database logic version-controlled in the beytra-db repository
-# and works identically for local development and cloud deployment.
+# They are created via Flyway migrations in beytra-db repository.

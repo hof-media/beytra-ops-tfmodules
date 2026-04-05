@@ -88,3 +88,21 @@ variable "labels" {
   type        = map(string)
   default     = {}
 }
+
+variable "users" {
+  description = "Map of DB users to create. Each entry gets a random_password + Secret Manager secret (beytra-db-password-{environment}-{user}). Key = DB username, value.databases = list of logical DBs the user serves (documentation only; grants are not auto-created here)."
+  type = map(object({
+    databases = list(string)
+  }))
+  default = {
+    beytra = {
+      databases = ["beytra-docs", "beytra-courses", "beytra-sms", "beytra-identity", "beytra-zitadel"]
+    }
+  }
+}
+
+variable "secret_accessor_service_accounts" {
+  description = "Service account emails granted secretAccessor on ALL per-user DB password secrets. Leave empty to manage access per-app via data sources in each app's .iac/."
+  type        = list(string)
+  default     = []
+}
