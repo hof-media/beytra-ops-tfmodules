@@ -34,21 +34,27 @@ locals {
       "run.services.getIamPolicy", "run.services.setIamPolicy",
       "run.revisions.get", "run.revisions.list",
       "run.jobs.get", "run.jobs.create", "run.jobs.update",
-      # Secret Manager (shell only)
+      # Secret Manager (shell only, also read versions for drift detection)
       "secretmanager.secrets.create", "secretmanager.secrets.get",
       "secretmanager.secrets.update", "secretmanager.secrets.list",
       "secretmanager.secrets.getIamPolicy", "secretmanager.secrets.setIamPolicy",
+      "secretmanager.versions.get", "secretmanager.versions.list",
       # IAM
       "iam.roles.create", "iam.roles.update", "iam.roles.get", "iam.roles.list",
       "iam.serviceAccounts.create", "iam.serviceAccounts.get",
       "iam.serviceAccounts.getIamPolicy", "iam.serviceAccounts.setIamPolicy",
       "resourcemanager.projects.getIamPolicy", "resourcemanager.projects.setIamPolicy",
+      # Workload Identity (for WIF-enabled SAs)
+      "iam.workloadIdentityPools.get", "iam.workloadIdentityPools.list",
+      "iam.workloadIdentityPoolProviders.get", "iam.workloadIdentityPoolProviders.list",
       # GCS (state bucket + bucket IAM)
       "storage.objects.get", "storage.objects.create", "storage.objects.delete", "storage.objects.list",
       "storage.buckets.get", "storage.buckets.getIamPolicy", "storage.buckets.setIamPolicy",
       # Pub/Sub (for projects that use it)
       "pubsub.topics.get", "pubsub.topics.create", "pubsub.topics.update",
       "pubsub.subscriptions.get", "pubsub.subscriptions.create", "pubsub.subscriptions.update",
+      # Artifact Registry (for repos that manage it)
+      "artifactregistry.repositories.get", "artifactregistry.repositories.list",
     ]
     deployer = [
       "run.services.get", "run.services.update",
