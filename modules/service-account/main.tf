@@ -38,7 +38,7 @@ locals {
       "secretmanager.secrets.create", "secretmanager.secrets.get",
       "secretmanager.secrets.update", "secretmanager.secrets.list",
       "secretmanager.secrets.getIamPolicy", "secretmanager.secrets.setIamPolicy",
-      "secretmanager.versions.get", "secretmanager.versions.list",
+      "secretmanager.versions.get", "secretmanager.versions.list", "secretmanager.versions.access",
       # IAM
       "iam.roles.create", "iam.roles.update", "iam.roles.get", "iam.roles.list",
       "iam.serviceAccounts.create", "iam.serviceAccounts.get",
@@ -55,6 +55,33 @@ locals {
       "pubsub.subscriptions.get", "pubsub.subscriptions.create", "pubsub.subscriptions.update",
       # Artifact Registry (for repos that manage it)
       "artifactregistry.repositories.get", "artifactregistry.repositories.list",
+      # DNS (for platform)
+      "dns.managedZones.get", "dns.managedZones.list",
+      "dns.resourceRecordSets.get", "dns.resourceRecordSets.list",
+      # Compute (for platform: VPC, bastion, load balancer, NAT, etc.)
+      "compute.networks.get", "compute.networks.list",
+      "compute.subnetworks.get", "compute.subnetworks.list",
+      "compute.addresses.get", "compute.addresses.list",
+      "compute.routers.get", "compute.routers.list",
+      "compute.instances.get", "compute.instances.list",
+      "compute.firewalls.get", "compute.firewalls.list",
+      "compute.urlMaps.get", "compute.urlMaps.list",
+      "compute.targetHttpProxies.get", "compute.targetHttpProxies.list",
+      "compute.targetHttpsProxies.get", "compute.targetHttpsProxies.list",
+      "compute.globalForwardingRules.get", "compute.globalForwardingRules.list",
+      "compute.globalAddresses.get", "compute.globalAddresses.list",
+      "compute.sslCertificates.get", "compute.sslCertificates.list",
+      "compute.backendServices.get", "compute.backendServices.list",
+      "compute.backendBuckets.get", "compute.backendBuckets.list",
+      "compute.securityPolicies.get", "compute.securityPolicies.list",
+      "compute.regionNetworkEndpointGroups.get", "compute.regionNetworkEndpointGroups.list",
+      # VPC Access Connector
+      "vpcaccess.connectors.get", "vpcaccess.connectors.list",
+      # Cloud SQL
+      "cloudsql.instances.get", "cloudsql.instances.list",
+      "cloudsql.users.get", "cloudsql.users.list",
+      # Memorystore Redis
+      "redis.instances.get", "redis.instances.list",
     ]
     deployer = [
       "run.services.get", "run.services.update",
