@@ -17,7 +17,7 @@ After=network.target
 [Service]
 Type=simple
 DynamicUser=yes
-ExecStart=/usr/local/bin/cloud-sql-proxy --address 127.0.0.1 --port 5432 --private-ip ${cloudsql_instance_connection_name}
+ExecStart=/usr/local/bin/cloud-sql-proxy --address 0.0.0.0 --port 5432 --private-ip ${cloudsql_instance_connection_name}
 Restart=always
 RestartSec=5
 NoNewPrivileges=yes
