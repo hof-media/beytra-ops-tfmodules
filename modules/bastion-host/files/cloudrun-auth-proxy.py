@@ -80,4 +80,4 @@ if __name__ == "__main__":
         logging.error("TARGET_URL environment variable must be set")
         sys.exit(1)
     logging.info("starting proxy on :%d -> %s", port, os.environ["TARGET_URL"])
-    HTTPServer(("127.0.0.1", port), CloudRunProxyHandler).serve_forever()
+    HTTPServer(("0.0.0.0", port), CloudRunProxyHandler).serve_forever()
