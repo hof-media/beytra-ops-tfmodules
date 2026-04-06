@@ -47,9 +47,10 @@ locals {
       # Workload Identity (for WIF-enabled SAs)
       "iam.workloadIdentityPools.get", "iam.workloadIdentityPools.list",
       "iam.workloadIdentityPoolProviders.get", "iam.workloadIdentityPoolProviders.list",
-      # GCS (state bucket + bucket IAM)
+      # GCS (state bucket + bucket IAM + bucket lifecycle management)
       "storage.objects.get", "storage.objects.create", "storage.objects.delete", "storage.objects.list",
-      "storage.buckets.get", "storage.buckets.getIamPolicy", "storage.buckets.setIamPolicy",
+      "storage.buckets.get", "storage.buckets.create", "storage.buckets.update", "storage.buckets.delete", "storage.buckets.list",
+      "storage.buckets.getIamPolicy", "storage.buckets.setIamPolicy",
       # Pub/Sub (for projects that use it)
       "pubsub.topics.get", "pubsub.topics.create", "pubsub.topics.update",
       "pubsub.subscriptions.get", "pubsub.subscriptions.create", "pubsub.subscriptions.update",
