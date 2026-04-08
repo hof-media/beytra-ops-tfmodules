@@ -58,6 +58,7 @@ locals {
       "artifactregistry.repositories.get", "artifactregistry.repositories.list",
       "artifactregistry.repositories.create", "artifactregistry.repositories.update", "artifactregistry.repositories.delete",
       "artifactregistry.repositories.getIamPolicy", "artifactregistry.repositories.setIamPolicy",
+      "artifactregistry.repositories.downloadArtifacts",
       # DNS (for platform)
       "dns.managedZones.get", "dns.managedZones.list",
       "dns.resourceRecordSets.get", "dns.resourceRecordSets.list",
