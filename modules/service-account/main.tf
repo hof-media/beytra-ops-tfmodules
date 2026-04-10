@@ -33,6 +33,7 @@ locals {
       "run.services.get", "run.services.list",
       "run.services.getIamPolicy", "run.services.setIamPolicy",
       "run.revisions.get", "run.revisions.list",
+      "run.operations.get",
       "run.jobs.get", "run.jobs.create", "run.jobs.update",
       # Secret Manager (shell only, also read versions for drift detection)
       "secretmanager.secrets.create", "secretmanager.secrets.get",
