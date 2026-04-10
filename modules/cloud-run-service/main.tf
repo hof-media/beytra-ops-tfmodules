@@ -106,6 +106,19 @@ resource "google_cloud_run_v2_service" "etl_processor" {
   ingress = var.ingress
 
   labels = var.labels
+
+  # Explicit traffic config — always route 100% to the latest ready revision.
+  #
+  # Without this block, the Google provider records whatever spec.traffic
+  # Cloud Run emits on create (which pins to a specific revisionName, not
+  # LATEST). Then gcloud run deploy creates new revisions that never receive
+  # traffic because the pinned revisionName stays fixed. Existing services in
+  # this state need a terraform apply with this block to flip them to
+  # latestRevision=true.
+  traffic {
+    type    = "TRAFFIC_TARGET_ALLOCATION_TYPE_LATEST"
+    percent = 100
+  }
 }
 
 # Allow service account to invoke the Cloud Run service
